@@ -124,4 +124,17 @@ router.post('/post-tweet', (req, res) => {
 
 })
 
+router.post("/url-image-to-base64", (req, res) => {
+    const url = req.body.url;
+    axios.get(url, {responseType:'arraybuffer'}).then((result) => {
+        if(result.status === 200 && result.data){
+            const imageData = Buffer.from(result.data, 'binary').toString('base64');
+            return res.status(200).json({success:true, data:imageData})
+        }
+    })
+    .catch((error)=>{
+        return res.status(200).json({success:false, data:null})
+    })
+})
+
 module.exports = router
