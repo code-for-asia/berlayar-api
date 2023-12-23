@@ -133,7 +133,7 @@ router.post("/url-image-to-base64", (req, res) => {
         }
     })
     .catch((error)=>{
-        return res.status(200).json({success:false, data:null})
+        return res.status(200).json({success:false, data:error})
     })
 })
 
