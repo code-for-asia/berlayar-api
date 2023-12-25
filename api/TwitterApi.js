@@ -1,8 +1,23 @@
+require('dotenv').config();
+const crypto = require('crypto');
 const express = require('express');
 const router = express.Router();
 const axios = require('axios');
 const FormData = require('form-data');
 const Oauth1Helper = require('../utils/OauthHelper');
+
+
+  
+  function decrypt(encryptedText, encryptionKey) {
+    const key = Buffer.from(encryptionKey, 'utf8');
+    const textParts = encryptedText.split(':');
+    const iv = Buffer.from(textParts.shift(), 'hex');
+    const encryptedBuffer = Buffer.from(textParts.join(':'), 'hex');
+    const decipher = crypto.createDecipheriv('aes-256-cbc', key, iv);
+    let decrypted = decipher.update(encryptedBuffer);
+    decrypted += decipher.final('utf8');
+    return decrypted;
+  }
 
 router.get('/check-api', (req, res) => {
     return res.status(200).json({success:true});
@@ -10,8 +25,8 @@ router.get('/check-api', (req, res) => {
 
 router.post('/get-access-token',(req,res) => {
     const code = req.body.code;
-    const username = "ramaiswara098@gmail.com"
-    const password = "24c562CB!"
+    const username = process.env.EMAIL
+    const password = decrypt(process.env.EMAIL_PASSWORD,process.env.DECRYPT_KEY)
     const credentials = Buffer.from(`${username}:${password}`).toString('base64');
     const headers = {
         headers:{
@@ -23,8 +38,8 @@ router.post('/get-access-token',(req,res) => {
     const formData = new URLSearchParams();
     formData.append('code',code);
     formData.append('grant_type','authorization_code');
-    formData.append('client_id','RjJXWkV1bjA2MW90VGhFZndWUy06MTpjaQ');
-    formData.append('redirect_uri','https://berlayar-ai-staging.web.app/redirected');
+    formData.append('client_id',process.env.TWITTER_CLIENT_ID);
+    formData.append('redirect_uri',process.env.REDIRECT_URL);
     formData.append('code_verifier','challenge');
 
     axios.post('https://api.twitter.com/2/oauth2/token', formData, headers)
@@ -38,8 +53,8 @@ router.post('/get-access-token',(req,res) => {
 
 router.post('/get-fresh-token',(req,res) => {
     const code = req.body.code;
-    const username = "ramaiswara098@gmail.com"
-    const password = "24c562CB!"
+    const username = process.env.EMAIL
+    const password = decrypt(process.env.EMAIL_PASSWORD,process.env.DECRYPT_KEY)
     const credentials = Buffer.from(`${username}:${password}`).toString('base64');
     const headers = {
         headers:{
@@ -51,7 +66,7 @@ router.post('/get-fresh-token',(req,res) => {
     const formData = new URLSearchParams();
     formData.append('refresh_token',code);
     formData.append('grant_type','refresh_token');
-    formData.append('client_id','RjJXWkV1bjA2MW90VGhFZndWUy06MTpjaQ');
+    formData.append('client_id',process.env.TWITTER_CLIENT_ID);
 
     axios.post('https://api.twitter.com/2/oauth2/token', formData, headers)
     .then((result) => {
