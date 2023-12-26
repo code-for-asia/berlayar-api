@@ -139,6 +139,23 @@ router.post('/post-tweet', (req, res) => {
 
 })
 
+router.post('/get-user', (req,res) => {
+    const token = req.body.token;
+    const headers = {
+        headers:{
+            'Authorization':`Bearer ${token}`,
+            'Content-Type':'application/json'
+        }
+    }
+
+    axios.get("https://api.twitter.com/2/users/me", headers)
+    .then((result) => {
+        return res.status(200).json({success:true, data:result.data})
+    }).catch((error) => {
+        return res.status(200).json({success:false, data:error})
+      })
+})
+
 router.post("/url-image-to-base64", (req, res) => {
     const url = req.body.url;
     axios.get(url, {responseType:'arraybuffer'}).then((result) => {
