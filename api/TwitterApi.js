@@ -80,6 +80,7 @@ router.post('/get-fresh-token',(req,res) => {
 
 router.post('/upload-media', (req, res) => {
     const mediaBase64 = req.body.media;
+    const userId = req.body.userId;
       const data ={
         media_category: "TWEET_IMAGE",
         media_data:mediaBase64
@@ -87,6 +88,7 @@ router.post('/upload-media', (req, res) => {
       const formData = new FormData();
       formData.append('media_category',"TWEET_IMAGE");
       formData.append("media_data", mediaBase64);
+      formData.append("additional_owners", userId);
 
       const request = {
         url:'https://upload.twitter.com/1.1/media/upload.json',
@@ -150,7 +152,7 @@ router.post('/get-user', (req,res) => {
 
     axios.get("https://api.twitter.com/2/users/me", headers)
     .then((result) => {
-        return res.status(200).json({success:true, data:result.data})
+        return res.status(200).json({success:true, data:result.data.data})
     }).catch((error) => {
         return res.status(200).json({success:false, data:error})
       })
